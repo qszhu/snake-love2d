@@ -9,11 +9,18 @@ class Snake
     @dr = { -1, 0, 1, 0 }
     @dc = { 0, 1, 0, -1 }
     @hasFruit = false
+    @lockInput = false -- only accept input after step
 
   turnRight: =>
+    if @lockInput then return
+    @lockInput = true
+
     @dir = @dir % 4 + 1
 
   turnLeft: =>
+    if @lockInput then return
+    @lockInput = true
+
     @dir = (@dir + 2) % 4 + 1
 
   up: =>
@@ -52,6 +59,7 @@ class Snake
       @body[i] = @body[i-1]
 
     @body[1] = Pos nrow, ncol
+    @lockInput = false
 
   draw: =>
     for i = 1, #@body

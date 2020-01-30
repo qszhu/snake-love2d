@@ -7,7 +7,7 @@ import Fruit from require 'fruit'
 import Snake from require 'snake'
 
 local snake, fruit
-local elapsed, interval
+local elapsed, interval, running
 
 newFruit = ->
   fruit = Fruit!
@@ -22,6 +22,10 @@ init = ->
 
   elapsed = 0
   interval = INIT_INTERVAL
+  running = true
+
+gameOver = ->
+  running = false
 
 love.load = (arg) ->
   w, h = love.graphics.getDimensions!
@@ -33,7 +37,12 @@ love.load = (arg) ->
 love.update = (dt) ->
   if love.keyboard.isDown 'escape'
     love.event.quit!
-  elseif love.keyboard.isDown 'up'
+
+  if not running
+    if love.keyboard.isDown 'k' then init!
+    else return
+
+  if love.keyboard.isDown 'up'
     snake\up!
   elseif love.keyboard.isDown 'down'
     snake\down!
@@ -41,14 +50,18 @@ love.update = (dt) ->
     snake\left!
   elseif love.keyboard.isDown 'right'
     snake\right!
+
   elapsed += dt
-  if elapsed >= interval
-    elapsed -= interval
-    snake\step!
-    if snake\eatFruit fruit
-      newFruit!
-      interval *= 1 - SPEED_UP
-    if snake\collidesSelf! then init!
+  if elapsed < interval then return
+  elapsed -= interval
+
+  snake\step!
+
+  if snake\eatFruit fruit
+    newFruit!
+    interval *= 1 - SPEED_UP
+
+  if snake\collidesSelf! then gameOver!
 
 love.draw = ->
   snake\draw!
